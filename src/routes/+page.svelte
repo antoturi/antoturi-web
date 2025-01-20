@@ -35,10 +35,23 @@
     });
 
     let hoveredProject = null;
+    let expanded = false; // State for description expansion
+
+    const handleMouseEnter = (project) => {
+        hoveredProject = project;
+    };
+
+    const handleMouseLeave = () => {
+        hoveredProject = null;
+        expanded = false;
+    };
+
+    const toggleDescription = () => {
+        expanded = !expanded;
+    };
 </script>
 
 <style>
-    /* General layout styles */
     .layout {
         display: flex;
         min-height: 100vh;
@@ -51,13 +64,12 @@
         overflow: hidden;
     }
 
-    /* Static left column styles */
     .left-column {
-        width: 30%; /* 1/3 of the screen */
+        width: 25%; 
         background-color: #f8f9fa; /* Light gray background */
         padding: 20px;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-family: system-ui, sans-serif;
     }
 
     .left-column h1 {
@@ -70,13 +82,12 @@
         line-height: 1.6;
     }
 
-    /* Main content area styles */
     .main-content {
         flex: 1;
         position: relative;
+        overflow: hidden;
     }
 
-    /* Footer styles */
     footer {
         text-align: center;
         padding: 10px;
@@ -88,8 +99,8 @@
 
     /* Dot styles */
     .dot {
-        width: 15px;
-        height: 15px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background-color: #0d00ff;
         position: absolute;
@@ -100,7 +111,64 @@
         transform: scale(1.5);
     }
 
-    .tooltip {
+    .line {
+        position: absolute;
+        width: 1px;
+        height: 2px;
+        background-color: #333;
+        transform-origin: 0 50%; /* Rotate from the start of the line */
+        z-index: 9;
+    }
+    
+
+    .info-box {
+        position: absolute;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        max-width: 300px;
+        z-index: 10;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+    }
+
+    .info-box img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .info-box h3 {
+        margin: 0 0 10px;
+    }
+
+    .info-box p {
+        margin: 0 0 10px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+    }
+
+    .info-box p.expanded {
+        -webkit-line-clamp: unset;
+        overflow: visible;
+    }
+
+    .info-box a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .info-box a:hover {
+        text-decoration: underline;
+    }
+
+    /* .tooltip {
         position: absolute;
         background: #afafaf;
         color: #fff;
@@ -117,6 +185,8 @@
     .tooltip.visible {
         opacity: 1;
     }
+ */
+
 </style>
 
 <div class="layout">
@@ -128,7 +198,7 @@
             <p>I consider myself a researcher, creative computer designer and artist from Chile with a keen interest in the potential of translation of creative technology and the Natural world. As a process-oriented practitioner I aim to explore new interactions towards environmental, cultural, and social sustainability through the power of imagination, “data-stories” and popular culture. The current environmental crisis is a call to move from methods focused on individuals to ones oriented to the ecosystem, emphasising collaboration and cooperation over domination and exploitation.</p>
             <p>
                 <strong>Contact:</strong> <br />
-                Email: <a href="mailto:your-email@example.com">your-email@example.com</a> <br />
+                Email: <a href="mailto:antoturi.valencia@gmail.com">antoturi.valencia@gmail.com</a> <br />
                 Phone: +123 456 789
             </p>
         </aside>
@@ -139,28 +209,31 @@
                 <div
                     class="dot"
                     style="top: {Math.random() * 90}vh; left: {33.33 + Math.random() * 66.67}vw;"
-                    on:mouseover={() => hoveredProject = project}
-                    on:mouseout={() => hoveredProject = null}
+                    on:mouseenter={() => handleMouseEnter(project)}
+                    
+                    aria-label="{project.Name}"
                 ></div>
             {/each}
 
             {#if hoveredProject}
                 <div
-                    class="tooltip visible"
-                    style="top: 10px; left: 50%; transform: translateX(-50%);"
+                    class="info-box"
+                    style="top: {hoveredProject.top}px; left: {hoveredProject.left}px; transform: translate(60%, 50%);"
                 >
-                    <h3>{hoveredProject.Name}</h3>
-                    <p>{hoveredProject.Description}</p>
-                    {#if hoveredProject.ImageURL}
-                        <img src="{hoveredProject.ImageURL}" alt="{hoveredProject.Name}" style="width: 100px;" />
-                    {/if}
-                    {#if hoveredProject.Link}
-                        <p><a href="{hoveredProject.Link}" target="_blank">View Project</a></p>
-                    {/if}
-                </div>
-            {/if}
-        </main>
-    </div>
+                <img src="{hoveredProject.ImageURL}" alt="{hoveredProject.Name}" />
+                <h3>{hoveredProject.Name}</h3>
+                <p class:expanded={expanded}>{hoveredProject.Description}</p>
+                <button on:click={toggleDescription}>
+                    {expanded ? 'Show Less' : 'Read More'}
+                </button>
+                {#if hoveredProject.Link}
+                    <p><a href="{hoveredProject.Link}" target="_blank">View Project</a></p>
+                {/if}
+            </div>
+        {/if}
+    </main>
+</div>
+
 
 
     <!-- Footer -->
